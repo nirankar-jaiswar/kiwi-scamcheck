@@ -1,0 +1,12 @@
+{
+  "name": "@kiwi-scamcheck/scam-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@kiwi-scamcheck/contracts": "workspace:*"
+  }
+}

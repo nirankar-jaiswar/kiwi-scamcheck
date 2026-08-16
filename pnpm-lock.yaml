@@ -43,6 +43,14 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  packages/contracts: {}
+
+  packages/scam-engine:
+    dependencies:
+      '@kiwi-scamcheck/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
 packages:
 
   '@alloc/quick-lru@5.2.0':
