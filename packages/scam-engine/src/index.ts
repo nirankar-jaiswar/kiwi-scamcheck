@@ -3,14 +3,24 @@ import type {
   ScamAnalysisResult,
 } from "@kiwi-scamcheck/contracts";
 
+import { detectUrgency } from "./urgency-detector";
+
+export { detectUrgency } from "./urgency-detector";
+
 export function analyseMessage(
   input: ScamAnalysisInput,
 ): ScamAnalysisResult {
-    void input; // This is to avoid unused variable warning, since we are not using the input in this stub implementation.
+  const signals = [detectUrgency(input)].filter(
+    (signal) => signal !== undefined,
+  );
+
   return {
-    riskScore: 0,
+    riskScore: signals.reduce(
+      (score, signal) => score + signal.scoreContribution,
+      0,
+    ),
     riskLevel: "low",
-    signals: [],
+    signals,
     recommendedActions: [],
     engineVersion: "0.1.0",
   };
