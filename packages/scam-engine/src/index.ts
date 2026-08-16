@@ -3,8 +3,10 @@ import type {
   ScamAnalysisResult,
 } from "@kiwi-scamcheck/contracts";
 
+import { scoreSignals } from "./scoring";
 import { detectUrgency } from "./urgency-detector";
 
+export { scoreSignals } from "./scoring";
 export { detectUrgency } from "./urgency-detector";
 
 export function analyseMessage(
@@ -13,13 +15,10 @@ export function analyseMessage(
   const signals = [detectUrgency(input)].filter(
     (signal) => signal !== undefined,
   );
+  const score = scoreSignals(signals);
 
   return {
-    riskScore: signals.reduce(
-      (score, signal) => score + signal.scoreContribution,
-      0,
-    ),
-    riskLevel: "low",
+    ...score,
     signals,
     recommendedActions: [],
     engineVersion: "0.1.0",
