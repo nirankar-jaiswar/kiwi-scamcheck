@@ -3,18 +3,21 @@ import type {
   ScamAnalysisResult,
 } from "@kiwi-scamcheck/contracts";
 
+import { detectCredentialRequest } from "./credential-request-detector";
 import { scoreSignals } from "./scoring";
 import { detectUrgency } from "./urgency-detector";
 
+export { detectCredentialRequest } from "./credential-request-detector";
 export { scoreSignals } from "./scoring";
 export { detectUrgency } from "./urgency-detector";
 
 export function analyseMessage(
   input: ScamAnalysisInput,
 ): ScamAnalysisResult {
-  const signals = [detectUrgency(input)].filter(
-    (signal) => signal !== undefined,
-  );
+  const signals = [
+    detectUrgency(input),
+    detectCredentialRequest(input),
+  ].filter((signal) => signal !== undefined);
   const score = scoreSignals(signals);
 
   return {
