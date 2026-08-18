@@ -5,10 +5,12 @@ import type {
 
 import { detectCredentialRequest } from "./credential-request-detector";
 import { scoreSignals } from "./scoring";
+import { detectSuspiciousUrl } from "./suspicious-url-detector";
 import { detectUrgency } from "./urgency-detector";
 
 export { detectCredentialRequest } from "./credential-request-detector";
 export { scoreSignals } from "./scoring";
+export { detectSuspiciousUrl } from "./suspicious-url-detector";
 export { detectUrgency } from "./urgency-detector";
 
 export function analyseMessage(
@@ -17,6 +19,7 @@ export function analyseMessage(
   const signals = [
     detectUrgency(input),
     detectCredentialRequest(input),
+    detectSuspiciousUrl(input),
   ].filter((signal) => signal !== undefined);
   const score = scoreSignals(signals);
 
