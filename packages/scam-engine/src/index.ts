@@ -4,11 +4,13 @@ import type {
 } from "@kiwi-scamcheck/contracts";
 
 import { detectCredentialRequest } from "./credential-request-detector";
+import { generateRecommendations } from "./recommendations";
 import { scoreSignals } from "./scoring";
 import { detectSuspiciousUrl } from "./suspicious-url-detector";
 import { detectUrgency } from "./urgency-detector";
 
 export { detectCredentialRequest } from "./credential-request-detector";
+export { generateRecommendations } from "./recommendations";
 export { scoreSignals } from "./scoring";
 export { detectSuspiciousUrl } from "./suspicious-url-detector";
 export { detectUrgency } from "./urgency-detector";
@@ -22,11 +24,12 @@ export function analyseMessage(
     detectSuspiciousUrl(input),
   ].filter((signal) => signal !== undefined);
   const score = scoreSignals(signals);
+  const recommendedActions = generateRecommendations(signals);
 
   return {
     ...score,
     signals,
-    recommendedActions: [],
+    recommendedActions,
     engineVersion: "0.1.0",
   };
 }
