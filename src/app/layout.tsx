@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type {ReactNode} from "react";
 import "./globals.css";
 
 const themeScript = `
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
     "Check suspicious messages for common scam warning signs privately in your browser.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
        <head>
