@@ -57,6 +57,8 @@ importers:
         specifier: workspace:*
         version: link:../contracts
 
+  services/feedback-api: {}
+
 packages:
 
   '@alloc/quick-lru@5.2.0':
