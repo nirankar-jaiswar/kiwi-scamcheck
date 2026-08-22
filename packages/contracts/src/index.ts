@@ -34,3 +34,15 @@ export interface ScamAnalysisResult {
     recommendedActions: string[];
     engineVersion: string;
 }
+
+export interface FeedbackRequest {
+    riskLevel: RiskLevel;
+    signalCodes: string[];
+    helpful: boolean;
+    engineVersion: string;
+}
+
+export interface FeedbackResponse {
+    feedbackId: string;
+    createdAt: string;
+}
