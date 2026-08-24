@@ -1,6 +1,9 @@
 {
-    "name": "@kiwi-scamcheck/feedback-api",
-    "version": "0.1.0",
-    "private": true,
-    "type": "module"
+  "name": "@kiwi-scamcheck/feedback-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@kiwi-scamcheck/contracts": "workspace:*"
+  }
 }

@@ -57,7 +57,11 @@ importers:
         specifier: workspace:*
         version: link:../contracts
 
-  services/feedback-api: {}
+  services/feedback-api:
+    dependencies:
+      '@kiwi-scamcheck/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
 
 packages:
 

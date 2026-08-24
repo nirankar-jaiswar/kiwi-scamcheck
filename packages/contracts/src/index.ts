@@ -8,10 +8,9 @@ export type ScamChannel =
 export type RiskSeverity =
 | "low"
 | "medium"
-| "high"
-| "critical";
+| "high";
 
-export type RiskLevel = "low" | "medium" | "high" | "critical";
+export type RiskLevel = "low" | "medium" | "high";
 
 export interface ScamAnalysisInput {
     text: string;
