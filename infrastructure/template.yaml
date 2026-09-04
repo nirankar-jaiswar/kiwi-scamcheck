@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless application for Kiwi ScamCheck Feedback API
+
+Parameters:
+  FeedbackLambdaRoleArn:
+    Type: String
+    Description: ARN of the Kiwi ScamCheck feedback Lambda execution role
+
+Resources:
+  FeedbackTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: kiwi-scamcheck-feedback
+      BillingMode: PROVISIONED
+      AttributeDefinitions:
+        - AttributeName: feedbackId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: feedbackId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  FeedbackApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      EndpointConfiguration:
+        Type: REGIONAL
+      Cors:
+        AllowOrigin: "'*'"
+        AllowMethods: "'POST,OPTIONS'"
+        AllowHeaders: "'Content-Type'"
+        MaxAge: "'600'"
+
+  FeedbackFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: kiwi-scamcheck-feedback
+      CodeUri: ../services/feedback-api
+      Handler: handler.handler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 5
+      Role: !Ref FeedbackLambdaRoleArn
+      Environment:
+        Variables:
+          FEEDBACK_TABLE_NAME: !Ref FeedbackTable
+      Events:
+        FeedbackPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FeedbackApi
+            Path: /feedback
+            Method: POST
+    Metadata:
+      BuildMethod: makefile
+
+Outputs:
+  FeedbackApiUrl:
+    Description: Kiwi ScamCheck feedback API endpoint
+    Value: !Sub "https://${FeedbackApi}.execute-api.${AWS::Region}.amazonaws.com/prod/feedback"
+
+  FeedbackTableName:
+    Description: DynamoDB feedback table name
+    Value: !Ref FeedbackTable
+
+  FeedbackFunctionName:
+    Description: Feedback Lambda function name
+    Value: !Ref FeedbackFunction

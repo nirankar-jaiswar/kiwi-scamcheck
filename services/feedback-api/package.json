@@ -1,0 +1,11 @@
+{
+  "name": "@kiwi-scamcheck/feedback-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1117.0",
+    "@aws-sdk/lib-dynamodb": "^3.1117.0",
+    "@kiwi-scamcheck/contracts": "workspace:*"
+  }
+}

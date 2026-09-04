@@ -6,6 +6,8 @@ import { analyseMessage } from "@kiwi-scamcheck/scam-engine";
 
 const MAX_MESSAGE_LENGTH = 5000;
 
+const FEEDBACK_API_URL = process.env.NEXT_PUBLIC_FEEDBACK_API_URL;
+
 const CHANNEL_OPTIONS = [
   { value: "unknown", label: "Unknown" },
   { value: "sms", label: "SMS" },
@@ -15,21 +17,25 @@ const CHANNEL_OPTIONS = [
 ] as const;
 
 type Channel = (typeof CHANNEL_OPTIONS)[number]["value"];
+
 type AnalysisResult = ReturnType<typeof analyseMessage>;
+
+type FeedbackStatus = "idle" | "submitting" | "success" | "error";
 
 const RISK_STYLES: Record<AnalysisResult["riskLevel"], string> = {
   low: "border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-100",
   medium:
     "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-100",
   high: "border-red-200 bg-red-50 text-red-950 dark:border-red-900 dark:bg-red-950/50 dark:text-red-100",
-  critical:
-    "border-red-300 bg-red-100 text-red-950 dark:border-red-800 dark:bg-red-950/70 dark:text-red-100",
 };
 
 export default function ScamChecker() {
   const [channel, setChannel] = useState<Channel>("unknown");
   const [message, setMessage] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [feedbackStatus, setFeedbackStatus] =
+    useState<FeedbackStatus>("idle");
+
   const canSubmit = message.trim().length > 0;
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -40,6 +46,45 @@ export default function ScamChecker() {
     }
 
     setResult(analyseMessage({ text: message, channel }));
+    setFeedbackStatus("idle");
+  }
+
+  async function handleFeedback(helpful: boolean) {
+    if (!result || feedbackStatus === "submitting") {
+      return;
+    }
+
+    if (!FEEDBACK_API_URL) {
+      console.error("NEXT_PUBLIC_FEEDBACK_API_URL is not configured.");
+      setFeedbackStatus("error");
+      return;
+    }
+
+    setFeedbackStatus("submitting");
+
+    try {
+      const response = await fetch(FEEDBACK_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          riskLevel: result.riskLevel,
+          signalCodes: result.signals.map((signal) => signal.code),
+          helpful,
+          engineVersion: result.engineVersion,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Feedback request failed: ${response.status}`);
+      }
+
+      setFeedbackStatus("success");
+    } catch (error) {
+      console.error("Unable to submit feedback", error);
+      setFeedbackStatus("error");
+    }
   }
 
   return (
@@ -55,6 +100,7 @@ export default function ScamChecker() {
           >
             Check a message
           </h2>
+
           <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
             Paste the message exactly as you received it. Nothing you enter is
             saved.
@@ -69,6 +115,7 @@ export default function ScamChecker() {
             >
               Message type
             </label>
+
             <select
               id="message-channel"
               value={channel}
@@ -91,6 +138,7 @@ export default function ScamChecker() {
               >
                 Suspicious message
               </label>
+
               <span
                 id="message-count"
                 aria-live="polite"
@@ -101,6 +149,7 @@ export default function ScamChecker() {
                 {MAX_MESSAGE_LENGTH.toLocaleString("en-NZ")}
               </span>
             </div>
+
             <textarea
               id="message-text"
               aria-describedby="message-limit message-count"
@@ -108,6 +157,7 @@ export default function ScamChecker() {
               onChange={(event) => {
                 setMessage(event.target.value);
                 setResult(null);
+                setFeedbackStatus("idle");
               }}
               required
               maxLength={MAX_MESSAGE_LENGTH}
@@ -115,6 +165,7 @@ export default function ScamChecker() {
               placeholder="Paste the message here…"
               className="w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-3 leading-6 text-slate-950 shadow-sm placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:outline-emerald-400"
             />
+
             <p
               id="message-limit"
               className="text-xs text-slate-500 dark:text-slate-400"
@@ -154,6 +205,7 @@ export default function ScamChecker() {
               <p className="text-sm font-semibold tracking-wide uppercase">
                 Risk level: {result.riskLevel}
               </p>
+
               <p className="mt-1 text-3xl font-bold">
                 {result.riskScore}
                 <span className="text-base font-medium"> / 100</span>
@@ -164,6 +216,7 @@ export default function ScamChecker() {
               <h3 className="text-lg font-semibold text-slate-950 dark:text-white">
                 Detected warning signs
               </h3>
+
               {result.signals.length > 0 ? (
                 <ul className="mt-3 space-y-3">
                   {result.signals.map((signal) => (
@@ -175,18 +228,22 @@ export default function ScamChecker() {
                         <h4 className="font-semibold text-slate-950 dark:text-white">
                           {signal.title}
                         </h4>
+
                         <span className="text-xs font-semibold tracking-wide text-slate-600 uppercase dark:text-slate-400">
                           Severity: {signal.severity}
                         </span>
                       </div>
+
                       <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
                         {signal.explanation}
                       </p>
+
                       {signal.evidence.length > 0 ? (
                         <div className="mt-3">
                           <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
                             Matched evidence
                           </p>
+
                           <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-300">
                             {signal.evidence.map((evidence) => (
                               <li key={evidence} className="break-words">
@@ -210,11 +267,61 @@ export default function ScamChecker() {
               <h3 className="text-lg font-semibold text-slate-950 dark:text-white">
                 Recommended actions
               </h3>
+
               <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-700 dark:text-slate-300">
                 {result.recommendedActions.map((action) => (
                   <li key={action}>{action}</li>
                 ))}
               </ul>
+            </div>
+
+            <div className="border-t border-slate-200 pt-5 dark:border-slate-700">
+              <h3 className="text-sm font-semibold text-slate-950 dark:text-white">
+                Was this result helpful?
+              </h3>
+
+              {feedbackStatus === "success" ? (
+                <p className="mt-2 text-sm text-emerald-700 dark:text-emerald-400">
+                  Thanks for your feedback.
+                </p>
+              ) : (
+                <>
+                  <div className="mt-3 flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleFeedback(true)}
+                      disabled={feedbackStatus === "submitting"}
+                      className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-800 dark:focus-visible:outline-emerald-400"
+                    >
+                      Yes
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleFeedback(false)}
+                      disabled={feedbackStatus === "submitting"}
+                      className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-800 dark:focus-visible:outline-emerald-400"
+                    >
+                      No
+                    </button>
+                  </div>
+
+                  {feedbackStatus === "submitting" ? (
+                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                      Sending feedback…
+                    </p>
+                  ) : null}
+
+                  {feedbackStatus === "error" ? (
+                    <p
+                      role="alert"
+                      className="mt-2 text-xs text-red-700 dark:text-red-400"
+                    >
+                      Feedback could not be sent. Please try again.
+                    </p>
+                  ) : null}
+                </>
+              )}
             </div>
 
             <p className="border-t border-slate-200 pt-4 text-xs text-slate-500 dark:border-slate-700 dark:text-slate-500">
@@ -226,6 +333,7 @@ export default function ScamChecker() {
             <h3 className="font-semibold text-slate-900 dark:text-white">
               Ready when you are
             </h3>
+
             <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
               Choose the message type, paste the message, and select Check
               message to see its warning signs and recommended next steps.
