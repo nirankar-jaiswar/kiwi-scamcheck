@@ -17,7 +17,7 @@ const themeScript = `
 export const metadata: Metadata = {
   title: "Kiwi ScamCheck",
   description:
-    "Check suspicious messages for common scam warning signs privately in your browser.",
+    "A privacy-first New Zealand scam message checker that analyses suspicious messages locally in your browser.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

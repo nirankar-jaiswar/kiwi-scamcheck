@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import ThemeToggle from "./theme-toggle";
 
 const NAVIGATION = [
@@ -12,9 +13,23 @@ export default function SiteHeader() {
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <a
           href="#"
-          className="text-lg font-bold tracking-tight text-slate-950 focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700 dark:text-white dark:focus-visible:outline-emerald-400"
+          className="flex items-center rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700 dark:focus-visible:outline-emerald-400"
         >
-          Kiwi ScamCheck
+          <img
+            src="/kiwi-scamcheck-logo-light.png"
+            alt="Kiwi ScamCheck"
+            width={280}
+            height={80}
+            className="h-16 w-auto object-contain dark:hidden"
+          />
+
+          <img
+            src="/kiwi-scamcheck-logo-dark.png"
+            alt="Kiwi ScamCheck"
+            width={280}
+            height={80}
+            className="hidden h-16 w-auto object-contain dark:block"
+          />
         </a>
 
         <nav
@@ -30,6 +45,7 @@ export default function SiteHeader() {
               {item.label}
             </a>
           ))}
+
           <ThemeToggle />
         </nav>
       </div>
