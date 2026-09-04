@@ -1,0 +1,79 @@
+name: Deploy Feedback API
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "services/feedback-api/**"
+      - "infrastructure/**"
+      - "packages/contracts/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/deploy-feedback-api.yml"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.8.1
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run TypeScript checks
+        run: pnpm exec tsc --noEmit
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Run lint
+        run: pnpm lint
+
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::726053619478:role/KiwiScamCheckGitHubDeployRole
+          aws-region: ap-southeast-6
+
+      - name: Set up AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+
+      - name: Build SAM application
+        run: |
+          sam build \
+            --template-file infrastructure/template.yaml \
+            --build-in-source
+
+      - name: Deploy SAM application
+        run: |
+          sam deploy \
+            --template-file .aws-sam/build/template.yaml \
+            --stack-name kiwi-scamcheck-feedback \
+            --region ap-southeast-6 \
+            --s3-bucket kiwi-scamcheck-sam-artifacts-726053619478-ap-southeast-6-an \
+            --role-arn arn:aws:iam::726053619478:role/KiwiScamCheckCloudFormationRole \
+            --parameter-overrides \
+              FeedbackLambdaRoleArn=arn:aws:iam::726053619478:role/KiwiScamCheckFeedbackLambdaRole \
+            --capabilities CAPABILITY_IAM \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset
