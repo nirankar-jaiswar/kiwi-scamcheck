@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+.pnpm-store/
 /.pnp
 .pnp.*
 .yarn/*
@@ -17,6 +18,12 @@ node_modules/
 /.next/
 /out/
 
+# AWS SAM
+.aws-sam/
+
+# Cloudflare Wrangler
+.wrangler/
+
 # production
 /build
 
@@ -30,7 +37,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# environment files
 .env*
 
 # vercel
@@ -39,5 +46,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-.aws-sam/
