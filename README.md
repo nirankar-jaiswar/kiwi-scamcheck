@@ -2,7 +2,9 @@
 
 Kiwi ScamCheck is a privacy-first, New Zealand-focused web application that helps users inspect suspicious messages for common scam warning signs.
 
-The app analyses messages locally in the browser and returns:
+🔗 **Live Demo:** https://kiwi-scamcheck.nirankar.workers.dev/
+
+Kiwi ScamCheck analyses suspicious messages locally in the browser and returns:
 
 * a risk score
 * a risk level
