@@ -12,9 +12,14 @@ describe("evaluation dataset", () => {
       });
 
       expect(result.riskLevel).toBe(message.expectedRisk);
-      expect(result.signals.map((signal) => signal.code)).toEqual(
-        message.expectedSignals,
-      );
+
+      const actualSignals = result.signals
+        .map((signal) => signal.code)
+        .sort();
+
+      const expectedSignals = [...message.expectedSignals].sort();
+
+      expect(actualSignals).toEqual(expectedSignals);
     });
   }
 });
