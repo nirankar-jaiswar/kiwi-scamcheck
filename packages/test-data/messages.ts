@@ -9,7 +9,7 @@ export interface EvaluationMessage {
 }
 
 export const evaluationMessages: EvaluationMessage[] = [
-    // Obvious scam examples
+  // Existing obvious scam examples
   {
     id: "scam-001",
     channel: "sms",
@@ -21,7 +21,6 @@ export const evaluationMessages: EvaluationMessage[] = [
       "SUSPICIOUS_URL",
     ],
   },
-
   {
     id: "scam-002",
     channel: "sms",
@@ -32,7 +31,6 @@ export const evaluationMessages: EvaluationMessage[] = [
       "SUSPICIOUS_URL",
     ],
   },
-
   {
     id: "scam-003",
     channel: "email",
@@ -42,7 +40,6 @@ export const evaluationMessages: EvaluationMessage[] = [
       "CREDENTIAL_REQUEST",
     ],
   },
-
   {
     id: "scam-004",
     channel: "marketplace",
@@ -54,8 +51,47 @@ export const evaluationMessages: EvaluationMessage[] = [
     ],
   },
 
-  // Legitimate examples
+  // New NZ regression cases
+  // This is the exact type of failure found during external human testing.
+  {
+    id: "scam-005-ird-refund",
+    channel: "sms",
+    text: "{IRD} You are due an additional refund, please confirm your details now to receive at: https://myird-tax.line.pm",
+    expectedRisk: "high",
+    expectedSignals: [
+      "CREDENTIAL_REQUEST",
+      "BRAND_LINK_MISMATCH",
+    ],
+  },
+  {
+    id: "scam-006-nzpost-fake-link",
+    channel: "sms",
+    text: "NZ Post: Your parcel delivery failed because your address is incomplete. Update your address at https://nzpost-redelivery.example",
+    expectedRisk: "high",
+    expectedSignals: [
+      "BRAND_LINK_MISMATCH",
+    ],
+  },
+  {
+    id: "scam-007-nzta-fake-link",
+    channel: "sms",
+    text: "NZTA: Your toll payment is overdue. Please pay at https://nzta-toll-payment.example",
+    expectedRisk: "high",
+    expectedSignals: [
+      "BRAND_LINK_MISMATCH",
+    ],
+  },
+  {
+    id: "scam-008-family-new-number",
+    channel: "sms",
+    text: "Hi Mum, this is my new number. My old phone broke. Can you message me on WhatsApp when you see this?",
+    expectedRisk: "medium",
+    expectedSignals: [
+      "FAMILY_IMPERSONATION",
+    ],
+  },
 
+  // Existing legitimate examples
   {
     id: "legit-001",
     channel: "sms",
@@ -63,7 +99,6 @@ export const evaluationMessages: EvaluationMessage[] = [
     expectedRisk: "low",
     expectedSignals: [],
   },
-
   {
     id: "legit-002",
     channel: "sms",
@@ -71,7 +106,6 @@ export const evaluationMessages: EvaluationMessage[] = [
     expectedRisk: "low",
     expectedSignals: [],
   },
-
   {
     id: "legit-003",
     channel: "email",
@@ -79,7 +113,6 @@ export const evaluationMessages: EvaluationMessage[] = [
     expectedRisk: "low",
     expectedSignals: [],
   },
-
   {
     id: "legit-004",
     channel: "email",
@@ -88,8 +121,23 @@ export const evaluationMessages: EvaluationMessage[] = [
     expectedSignals: [],
   },
 
-  // Ambiguous / false-positive tests
+  // New legitimate regression cases
+  {
+    id: "legit-005-family-message",
+    channel: "sms",
+    text: "Hi Mum, I'll be home around 8 tonight. See you then.",
+    expectedRisk: "low",
+    expectedSignals: [],
+  },
+  {
+    id: "legit-006-ird-official-link",
+    channel: "sms",
+    text: "Inland Revenue: You have a new message in myIR. Visit https://www.ird.govt.nz to access Inland Revenue services.",
+    expectedRisk: "low",
+    expectedSignals: [],
+  },
 
+  // Ambiguous / false-positive tests
   {
     id: "ambiguous-001",
     channel: "email",
@@ -99,7 +147,6 @@ export const evaluationMessages: EvaluationMessage[] = [
       "URGENCY",
     ],
   },
-
   {
     id: "ambiguous-002",
     channel: "social",
@@ -109,7 +156,6 @@ export const evaluationMessages: EvaluationMessage[] = [
       "SUSPICIOUS_URL",
     ],
   },
-
   {
     id: "ambiguous-003",
     channel: "email",
@@ -117,7 +163,6 @@ export const evaluationMessages: EvaluationMessage[] = [
     expectedRisk: "low",
     expectedSignals: [],
   },
-
   {
     id: "ambiguous-004",
     channel: "email",

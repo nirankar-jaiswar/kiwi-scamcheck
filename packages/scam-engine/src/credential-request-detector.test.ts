@@ -12,12 +12,14 @@ function input(text: string): ScamAnalysisInput {
 describe("detectCredentialRequest", () => {
   it("detects a password request", () => {
     expect(
-      detectCredentialRequest(input("Please provide your password.")),
+      detectCredentialRequest(
+        input("Please provide your password."),
+      ),
     ).toEqual({
       code: "CREDENTIAL_REQUEST",
       title: "Sensitive information requested",
       explanation:
-        "The message asks for authentication information that should be kept private.",
+        "The message asks for authentication, personal, account, or payment information that may be sensitive.",
       severity: "high",
       evidence: ["provide your password"],
       scoreContribution: 30,
@@ -26,7 +28,9 @@ describe("detectCredentialRequest", () => {
 
   it("detects an OTP request", () => {
     expect(
-      detectCredentialRequest(input("Send us your OTP to continue."))?.evidence,
+      detectCredentialRequest(
+        input("Send us your OTP to continue."),
+      )?.evidence,
     ).toEqual(["Send us your OTP"]);
   });
 
@@ -40,9 +44,34 @@ describe("detectCredentialRequest", () => {
 
   it("matches mixed-case input", () => {
     expect(
-      detectCredentialRequest(input("SUBMIT Your Login Credentials"))
-        ?.evidence,
+      detectCredentialRequest(
+        input("SUBMIT Your Login Credentials"),
+      )?.evidence,
     ).toEqual(["SUBMIT Your Login Credentials"]);
+  });
+
+  it("detects a request to confirm personal details", () => {
+    expect(
+      detectCredentialRequest(
+        input("Please confirm your details now."),
+      )?.evidence,
+    ).toEqual(["confirm your details"]);
+  });
+
+  it("detects a request to update bank details", () => {
+    expect(
+      detectCredentialRequest(
+        input("Update your bank details to receive the refund."),
+      )?.evidence,
+    ).toEqual(["Update your bank details"]);
+  });
+
+  it("detects a request to verify card details", () => {
+    expect(
+      detectCredentialRequest(
+        input("Verify your card details to continue."),
+      )?.evidence,
+    ).toEqual(["Verify your card details"]);
   });
 
   it("combines credential and urgency signals in message analysis", () => {
@@ -50,10 +79,13 @@ describe("detectCredentialRequest", () => {
       input("Act now and confirm your security code."),
     );
 
-    expect(result.signals.map((signal) => signal.code)).toEqual([
+    expect(
+      result.signals.map((signal) => signal.code),
+    ).toEqual([
       "URGENCY",
       "CREDENTIAL_REQUEST",
     ]);
+
     expect(result.riskScore).toBe(45);
     expect(result.riskLevel).toBe("medium");
   });
@@ -65,7 +97,7 @@ describe("detectCredentialRequest", () => {
       ),
     ).toBeUndefined();
   });
-  
+
   it("does not flag advice not to share an OTP", () => {
     expect(
       detectCredentialRequest(
@@ -77,12 +109,26 @@ describe("detectCredentialRequest", () => {
   it("does not flag legitimate security advice", () => {
     expect(
       detectCredentialRequest(
-        input("Use a unique password and enable two-factor authentication."),
+        input(
+          "Use a unique password and enable two-factor authentication.",
+        ),
+      ),
+    ).toBeUndefined();
+  });
+
+  it("does not treat ordinary appointment details as sensitive information", () => {
+    expect(
+      detectCredentialRequest(
+        input(
+          "Please confirm your appointment details with reception.",
+        ),
       ),
     ).toBeUndefined();
   });
 
   it("returns no signal for empty input", () => {
-    expect(detectCredentialRequest(input(""))).toBeUndefined();
+    expect(
+      detectCredentialRequest(input("")),
+    ).toBeUndefined();
   });
 });
