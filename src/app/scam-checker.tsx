@@ -130,6 +130,14 @@ export default function ScamChecker() {
             </select>
           </div>
 
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
+            <strong>Prototype coverage:</strong>{" "}
+            Kiwi ScamCheck currently has stronger detection for IRD/myIR, NZ Post,
+            NZTA/Waka Kotahi, NZ Police, NZ Customs, Work and Income/MyMSD,
+            Department of Internal Affairs, and family impersonation scams.
+            Other scam types may not yet be detected reliably, so a Low result does
+            not guarantee that a message is safe.
+          </div>
           <div className="space-y-2">
             <div className="flex items-baseline justify-between gap-4">
               <label

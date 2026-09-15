@@ -90,6 +90,43 @@ export const evaluationMessages: EvaluationMessage[] = [
       "FAMILY_IMPERSONATION",
     ],
   },
+  {
+    id: "scam-009-nz-police-infringement",
+    channel: "sms",
+    text: "NZ Police: Final Warning - Unpaid Infringement. Failure to pay immediately will result in District Court referral without further notice. This may lead to a license ban and higher court fines. https://govt-police.club/nz New Zealand Police",
+    expectedRisk: "high",
+    expectedSignals: [
+      "URGENCY",
+      "BRAND_LINK_MISMATCH",
+    ],
+  },
+  {
+    id: "scam-010-nz-customs-fake-link",
+    channel: "sms",
+    text: "New Zealand Customs: Your parcel is awaiting customs clearance. Pay the required fee at https://customs-clearance-payment.example",
+    expectedRisk: "high",
+    expectedSignals: [
+      "BRAND_LINK_MISMATCH",
+    ],
+  },
+  {
+    id: "scam-011-work-income-fake-link",
+    channel: "sms",
+    text: "Work and Income: Your payment is on hold. Review your account at https://winz-payment-review.example",
+    expectedRisk: "high",
+    expectedSignals: [
+      "BRAND_LINK_MISMATCH",
+    ],
+  },
+  {
+    id: "scam-012-dia-fake-link",
+    channel: "email",
+    text: "Department of Internal Affairs: Please review your account information at https://dia-account-review.example",
+    expectedRisk: "high",
+    expectedSignals: [
+      "BRAND_LINK_MISMATCH",
+    ],
+  },
 
   // Existing legitimate examples
   {

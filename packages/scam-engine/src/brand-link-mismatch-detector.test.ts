@@ -88,4 +88,76 @@ describe("detectBrandLinkMismatch", () => {
 
     expect(signal).toBeUndefined();
   });
+
+  it("detects an NZ Police message linking to an unrelated domain", () => {
+    const signal = detectBrandLinkMismatch({
+      channel: "sms",
+      text: "NZ Police: Pay your infringement at https://govt-police.club/nz",
+    });
+
+    expect(signal?.code).toBe("BRAND_LINK_MISMATCH");
+  });
+
+  it("does not flag the official NZ Police domain", () => {
+    const signal = detectBrandLinkMismatch({
+      channel: "sms",
+      text: "New Zealand Police: Visit https://www.police.govt.nz/pay for infringement information.",
+    });
+
+    expect(signal).toBeUndefined();
+  });
+
+  it("detects an NZ Customs message linking to an unrelated domain", () => {
+    const signal = detectBrandLinkMismatch({
+      channel: "sms",
+      text: "New Zealand Customs: Pay your clearance fee at https://customs-fee.example",
+    });
+
+    expect(signal?.code).toBe("BRAND_LINK_MISMATCH");
+  });
+
+  it("does not flag the official NZ Customs domain", () => {
+    const signal = detectBrandLinkMismatch({
+      channel: "sms",
+      text: "New Zealand Customs: Visit https://www.customs.govt.nz for information.",
+    });
+
+    expect(signal).toBeUndefined();
+  });
+
+  it("detects a Work and Income message linking to an unrelated domain", () => {
+    const signal = detectBrandLinkMismatch({
+      channel: "sms",
+      text: "Work and Income: Review your payment at https://winz-payment.example",
+    });
+
+    expect(signal?.code).toBe("BRAND_LINK_MISMATCH");
+  });
+
+  it("does not flag the official MyMSD domain", () => {
+    const signal = detectBrandLinkMismatch({
+      channel: "sms",
+      text: "MyMSD: Sign in at https://my.msd.govt.nz",
+    });
+
+    expect(signal).toBeUndefined();
+  });
+
+  it("detects a Department of Internal Affairs message linking to an unrelated domain", () => {
+    const signal = detectBrandLinkMismatch({
+      channel: "email",
+      text: "Department of Internal Affairs: Review your account at https://dia-review.example",
+    });
+
+    expect(signal?.code).toBe("BRAND_LINK_MISMATCH");
+  });
+
+  it("does not flag the official DIA domain", () => {
+    const signal = detectBrandLinkMismatch({
+      channel: "email",
+      text: "Department of Internal Affairs: Visit https://www.dia.govt.nz for information.",
+    });
+
+    expect(signal).toBeUndefined();
+  });
 });

@@ -37,6 +37,6 @@ export function analyseMessage(
     ...score,
     signals,
     recommendedActions,
-    engineVersion: "0.2.0",
+    engineVersion: "0.2.1",
   };
 }
